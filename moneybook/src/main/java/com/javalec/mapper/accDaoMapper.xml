@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+  <mapper namespace="com.javalec.moneybook.account.IaccDao">
+  
+  <insert id="account_add">
+  INSERT INTO ACCOUNT_LIST 
+  (ACCNO, ACCNAME, ACCNUMBER) 
+  VALUES (ACCOUNT_SEQ.NEXTVAL, #{accName}, #{accNumber})
+  </insert>
+  
+  <select id="account_list" resultType="com.javalec.moneybook.account.accountDto">
+  SELECT * FROM ACCOUNT_LIST
+  </select>
+ 
+  <delete id="account_delete">
+  DELETE FROM ACCOUNT_LIST WHERE ACCNO=#{accNo}
+  </delete>
+
+ 
+  </mapper>

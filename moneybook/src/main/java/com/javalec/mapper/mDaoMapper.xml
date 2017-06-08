@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+  <mapper namespace="com.javalec.moneybook.member.ImDao">
+  <insert id="insertMember">
+  	INSERT INTO MEMBER (MNO, MID, MPW, MNAME, MPHONE, MADDRESS, MDATE) 
+  	VALUES (MEMBER_SEQ.NEXTVAL,#{id},#{pw},#{name},#{phone},#{address}, SYSDATE)
+  </insert>
+  
+
+  <select id="checkUser" resultType="com.javalec.moneybook.member.mDto">
+  SELECT MID, MPW FROM MEMBER WHERE MID=#{id} AND MPW=#{pw}
+  </select>
+  
+  <select id="checkId" resultType="com.javalec.moneybook.member.mDto">
+  SELECT MID FROM MEMBER WHERE MID = #{param1}
+  </select>
+  </mapper>
