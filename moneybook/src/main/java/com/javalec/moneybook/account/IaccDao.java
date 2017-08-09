@@ -9,6 +9,6 @@ import org.springframework.stereotype.Component;
 public interface IaccDao {
 
 	public void account_add(HashMap<String, String> map);
-	public ArrayList<accountDto> account_list();
+	public ArrayList<accountDto> account_list(String sessionID);
 	public void account_delete(HashMap<String, String> map);
 }

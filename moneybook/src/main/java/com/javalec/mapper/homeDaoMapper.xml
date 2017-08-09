@@ -3,10 +3,29 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
  
- <mapper namespace="com.javalec.moneybook.home.IhomeDao">
+<mapper namespace="com.javalec.moneybook.home.IhomeDao">
  
- <insert id="inoutputMoney">
- insert into money values (#{input}, #{output})
- </insert>
+	<insert id="inputMoney">
+		insert into inoutput 
+		values (TO_DATE(#{start},'YYYY-MM-DD'), #{account}, #{input}, #{type}, #{category})
+	</insert>
+	
+	<insert id="outputMoney">
+		insert into inoutput
+		values (TO_DATE(#{start},'YYYY-MM-DD'), #{account}, #{output}, #{type}, #{category})
+	</insert>
+	
+	<select id="getData_input" resultType="com.javalec.moneybook.home.homeDto">
+		select money as "title",
+			   STARTN as "start"
+		  from inoutput where type = 'input'
+	</select>
+	
+	 <select id="getData_output" resultType="com.javalec.moneybook.home.homeDto">
+		select money as "title",
+			   STARTN as "start"
+		  from inoutput where type ='output'
+	 </select>
+  
+</mapper>
  
- </mapper>

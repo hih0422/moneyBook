@@ -21,7 +21,7 @@
 		<beans:property name="suffix" value=".jsp" />
 	</beans:bean>
 	
-	<context:component-scan base-package="com.javalec.moneybook.*" />
+	<context:component-scan base-package="com.javalec.*" />
 	<context:component-scan base-package="com.javalec.moneybook.account.accountService" />
 	<context:annotation-config></context:annotation-config>
 </beans:beans>

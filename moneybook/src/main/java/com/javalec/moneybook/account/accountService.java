@@ -18,10 +18,10 @@ public class accountService {
 		accdao.account_add(map);
 	}
 	
-	public ArrayList<accountDto> account_list()	
+	public ArrayList<accountDto> account_list(String sessionID)	
 	{
 		System.out.println("서비스 어카운트 리스트");
-		ArrayList<accountDto> list =accdao.account_list();
+		ArrayList<accountDto> list =accdao.account_list(sessionID);
 		return list;
 	}
 	

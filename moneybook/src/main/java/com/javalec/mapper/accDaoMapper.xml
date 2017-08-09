@@ -7,12 +7,12 @@
   
   <insert id="account_add">
   INSERT INTO ACCOUNT_LIST 
-  (ACCNO, ACCNAME, ACCNUMBER) 
-  VALUES (ACCOUNT_SEQ.NEXTVAL, #{accName}, #{accNumber})
+  (ACCNO, ACCNAME, ACCNUMBER, SESSIONID) 
+  VALUES (ACCOUNT_SEQ.NEXTVAL, #{accName}, #{accNumber}, #{sessionID})
   </insert>
   
   <select id="account_list" resultType="com.javalec.moneybook.account.accountDto">
-  SELECT * FROM ACCOUNT_LIST
+  SELECT * FROM ACCOUNT_LIST where sessionID = #{sessionID}
   </select>
  
   <delete id="account_delete">

@@ -21,10 +21,10 @@ public class accDao implements IaccDao {
 	}
 
 	@Override
-	public ArrayList<accountDto> account_list() {
+	public ArrayList<accountDto> account_list(String sessionID) {
 		// TODO Auto-generated method stub
 		IaccDao iadao = sqlsession.getMapper(IaccDao.class);
-		ArrayList<accountDto> list = iadao.account_list();
+		ArrayList<accountDto> list = iadao.account_list(sessionID);
 		return list;
 	}
 

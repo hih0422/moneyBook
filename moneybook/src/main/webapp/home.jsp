@@ -14,6 +14,20 @@
     
 	<!-- jQuery -->
     <script src="${pageContext.request.contextPath}/vendors/jquery/dist/jquery.min.js"></script>
+    
+    <!-- Bootstrap -->
+    <script src="${pageContext.request.contextPath}/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+     <!-- FastClick -->
+    <script src="${pageContext.request.contextPath}/vendors/fastclick/lib/fastclick.js"></script>
+    <!-- NProgress -->
+    <script src="${pageContext.request.contextPath}/vendors/nprogress/nprogress.js"></script> 
+    <!-- FullCalendar -->
+    <script src="${pageContext.request.contextPath}/vendors/moment/min/moment.min.js"></script>
+    
+    <script src="${pageContext.request.contextPath}/vendors/fullcalendar/dist/fullcalendar.min.js"></script>
+    <!-- Custom Theme Scripts -->
+    <%-- <script src="${pageContext.request.contextPath}/build/js/custom.min.js"></script> --%>
+    
 
     <!-- Bootstrap -->
     <link href="${pageContext.request.contextPath}/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -28,45 +42,87 @@
     <!-- Custom styling plus plugins -->
     <link href="${pageContext.request.contextPath}/build/css/custom.min.css" rel="stylesheet">
     
-    <script>
-    $(document).ready(function(){
- 
-	    $('#calendar').fullCalendar({
-	    	dayClick: function(date, allDay, jsEvent, view) {
-	    		var day = date._d.getDay();
-	    		var year = date._d.getYear();
-	    		var month = date._d.getMonth();
-	    		
-				console.log("dd : "+date) ;
-// 				console.log(allDay);
-// 				console.log(jsEvent);
-// 				console.log(view);
-				$('#CalenderModalNew').modal();
 
-			    $('#saveChanges').click(function(){
-			    	var inputMoney = $('#input-money').val();
-			    	var outputMoney = $('#output-money').val();
-			    	events : function() {
-			    	//ajax controller 통해서 디비에 넣는다 \
-			    		$.ajax({
-			    			url : "./inoutputMoney.do",
-			    			type : 'post',
-			    			data : {"input" : inputMoney, "output" : outputMoney},
-			    			dataType : 'json',
-			    			success : function(data){
-								console.log("ajax : " +data);
-								$('#CalenderModalNew').modal('hide');
-									events.push({
-										title : 'event1',
-										start : '2017-06-05'
-												});
-			    							}
-			    						});
-			    					}
-			   					 });
-	    					}
-    					});
- 				   });
+    <script>
+	var start;
+
+    $(document).ready(function(){
+			var d;
+			var m;
+			var y;
+			$.ajax({
+	 			url : './getData.do',
+	 			type : 'post',
+	 			dataType : 'json',
+	 			success : function(data){
+	 			 	$('#calendar').fullCalendar({
+	 	    	 		header: {
+	 						left: 'prev,next today',
+	 						center: 'title',
+	 						right: 'month,basicWeek,basicDay'
+	 					},
+	 					dayNames : ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'],
+	 					dayNamesShort : ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'],
+	 					monthNames : ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+	 					events : data,
+	 					dayClick: function(date, allDay, jsEvent, view) {
+	 						 var callDate = date.format();
+	 						 var a =callDate.split('-');
+	 						 y = a[0];
+	 						 m = a[1];
+	 						 d = a[2];
+	 						 start = y+'-'+m+'-'+d;
+	 						//모달 생성
+	 						$('#CalenderModalNew').modal();
+	 					 }
+	 				});
+	 			},
+	 			error : function(error){
+	 				console.log(error);
+	 			}
+	 			
+	 		});
+			
+			//모달 내 saveChange 클릭
+			$('#saveChanges').click(function(){
+			   detail();
+			});
+
+   });//도큐먼트 끝
+   
+   function detail(){
+	   var ad = $('#selectOption option:selected').val();
+	   if(ad == 1){
+		   $('#detailModal').modal();
+	   }
+	   else if(ad == 2){
+		   $('#detailModal2').modal();
+	   }
+   }
+   
+   function detailCategory(value){
+	   
+	   var moneyValue = $('#selectOption option:selected').val(); //셀렉트 입금 or 출금 판별
+	   var account = $('#account option:checked').text();//선택 계좌
+	   var getMoney = $('#getMoney').val();	
+	   alert("카테고리" + value);
+	  
+	   //ajax controller 통해서 디비에 넣는다 
+	    $.ajax({
+	    	url : "./inoutputMoney.do",
+	    	type : 'post',
+	    	data : {"moneyValue":moneyValue, "getMoney":getMoney, "start":start, "account":account,"category" : value},
+	    	dataType : 'json',
+	    	success : function(data){
+	    		$('#detailModal').modal('hide');
+	    		$('#detailModal2').modal('hide');
+	    		$ ('#CalenderModalNew').modal('hide');
+	    		$('#calendar').fullCalendar('addEventSource',data);
+	    		var callbackEvents = $('#calendar').fullCalendar('getEventSources');
+	    	}
+	   });
+   }
+
     </script>
     
   </head>
@@ -84,112 +140,24 @@
 
             <!-- menu profile quick info -->
             <div class="profile clearfix">
-               <div class="profile_info">
-                <span>Welcome</span>
-                <h2><%String id = (String)session.getAttribute("id"); %> <%=id%></h2>
+              <div class="profile_info">
+                <span>Welcome,</span>
+                <h2><%String id = (String)session.getAttribute("id"); %> <%=id+"님"%></h2>
               </div> 
             </div>
             <!-- /menu profile quick info -->
-
-            <br />
 
             <!-- sidebar menu -->
             <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
               <div class="menu_section">
                 <h3>General</h3>
                 <ul class="nav side-menu">
-                   <li><a href="${pageContext.request.contextPath}/home.do"><i class="fa fa-home"></i> Home </a> </li>
+                  <li><a href="${pageContext.request.contextPath}/home.do"><i class="fa fa-home"></i> Home </a> </li>
 				  <li><a href="${pageContext.request.contextPath}/account_list.do"><i class="fa fa-credit-card-alt" aria-hidden="true"></i> Credit Card </a> </li>
-
-                  <li><a><i class="fa fa-edit"></i> Forms <span class="fa fa-chevron-down"></span></a>
-                    <ul class="nav child_menu">
-                      <li><a href="form.html">General Form</a></li>
-                      <li><a href="form_advanced.html">Advanced Components</a></li>
-                      <li><a href="form_validation.html">Form Validation</a></li>
-                      <li><a href="form_wizards.html">Form Wizard</a></li>
-                      <li><a href="form_upload.html">Form Upload</a></li>
-                      <li><a href="form_buttons.html">Form Buttons</a></li>
-                    </ul>
-                  </li>
-                  <li><a><i class="fa fa-desktop"></i> UI Elements <span class="fa fa-chevron-down"></span></a>
-                    <ul class="nav child_menu">
-                      <li><a href="general_elements.html">General Elements</a></li>
-                      <li><a href="media_gallery.html">Media Gallery</a></li>
-                      <li><a href="typography.html">Typography</a></li>
-                      <li><a href="icons.html">Icons</a></li>
-                      <li><a href="glyphicons.html">Glyphicons</a></li>
-                      <li><a href="widgets.html">Widgets</a></li>
-                      <li><a href="invoice.html">Invoice</a></li>
-                      <li><a href="inbox.html">Inbox</a></li>
-                      <li><a href="calendar.html">Calendar</a></li>
-                    </ul>
-                  </li>
-                  <li><a><i class="fa fa-table"></i> Tables <span class="fa fa-chevron-down"></span></a>
-                    <ul class="nav child_menu">
-                      <li><a href="tables.html">Tables</a></li>
-                      <li><a href="tables_dynamic.html">Table Dynamic</a></li>
-                    </ul>
-                  </li>
-                  <li><a><i class="fa fa-bar-chart-o"></i> Data Presentation <span class="fa fa-chevron-down"></span></a>
-                    <ul class="nav child_menu">
-                      <li><a href="chartjs.html">Chart JS</a></li>
-                      <li><a href="chartjs2.html">Chart JS2</a></li>
-                      <li><a href="morisjs.html">Moris JS</a></li>
-                      <li><a href="echarts.html">ECharts</a></li>
-                      <li><a href="other_charts.html">Other Charts</a></li>
-                    </ul>
-                  </li>
-                  <li><a><i class="fa fa-clone"></i>Layouts <span class="fa fa-chevron-down"></span></a>
-                    <ul class="nav child_menu">
-                      <li><a href="fixed_sidebar.html">Fixed Sidebar</a></li>
-                      <li><a href="fixed_footer.html">Fixed Footer</a></li>
-                    </ul>
-                  </li>
+ 				  <li><a href="${pageContext.request.contextPath}/graphs.do"><i class="fa fa-home"></i> Graphs </a> </li>
+ 				  <li><a href="${pageContext.request.contextPath}/statics.do"><i class="fa fa-table"></i>Statics</a></li>
                 </ul>
               </div>
-              <div class="menu_section">
-                <h3>Live On</h3>
-                <ul class="nav side-menu">
-                  <li><a><i class="fa fa-bug"></i> Additional Pages <span class="fa fa-chevron-down"></span></a>
-                    <ul class="nav child_menu">
-                      <li><a href="e_commerce.html">E-commerce</a></li>
-                      <li><a href="projects.html">Projects</a></li>
-                      <li><a href="project_detail.html">Project Detail</a></li>
-                      <li><a href="contacts.html">Contacts</a></li>
-                      <li><a href="profile.html">Profile</a></li>
-                    </ul>
-                  </li>
-                  <li><a><i class="fa fa-windows"></i> Extras <span class="fa fa-chevron-down"></span></a>
-                    <ul class="nav child_menu">
-                      <li><a href="page_403.html">403 Error</a></li>
-                      <li><a href="page_404.html">404 Error</a></li>
-                      <li><a href="page_500.html">500 Error</a></li>
-                      <li><a href="plain_page.html">Plain Page</a></li>
-                      <li><a href="login.html">Login Page</a></li>
-                      <li><a href="pricing_tables.html">Pricing Tables</a></li>
-                    </ul>
-                  </li>
-                  <li><a><i class="fa fa-sitemap"></i> Multilevel Menu <span class="fa fa-chevron-down"></span></a>
-                    <ul class="nav child_menu">
-                        <li><a href="#level1_1">Level One</a>
-                        <li><a>Level One<span class="fa fa-chevron-down"></span></a>
-                          <ul class="nav child_menu">
-                            <li class="sub_menu"><a href="level2.html">Level Two</a>
-                            </li>
-                            <li><a href="#level2_1">Level Two</a>
-                            </li>
-                            <li><a href="#level2_2">Level Two</a>
-                            </li>
-                          </ul>
-                        </li>
-                        <li><a href="#level1_2">Level One</a>
-                        </li>
-                    </ul>
-                  </li>                  
-                  <li><a href="javascript:void(0)"><i class="fa fa-laptop"></i> Landing Page <span class="label label-success pull-right">Coming Soon</span></a></li>
-                </ul>
-              </div>
-
             </div>
             <!-- /sidebar menu -->
 
@@ -212,30 +180,30 @@
           </div>
         </div>
 
-        <!-- top navigation -->
-        <div class="top_nav">
-          <div class="nav_menu">
-            <nav>
-              <div class="nav toggle">
-                <a id="menu_toggle"><i class="fa fa-bars"></i></a>
-              </div>
+			<!-- top navigation -->
+			<div class="top_nav">
+				<div class="nav_menu">
+					<nav>
+						<div class="nav toggle">
+							<a id="menu_toggle"><i class="fa fa-bars"></i></a>
+						</div>
 
-              <ul class="nav navbar-nav navbar-right">
-                <li class="">
-                  <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                  <%String headid = (String)session.getAttribute("id"); %> <%=headid%> 
-                    <span class=" fa fa-angle-down"></span>
-                  </a>
-                  <ul class="dropdown-menu dropdown-usermenu pull-right">
-                    <li><a href="javascript:;"> Profile</a></li>
-                    <li><a href="login.html"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
-                  </ul>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-        <!-- /top navigation -->
+						<ul class="nav navbar-nav navbar-right">
+							<li class="">
+							<a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> 
+							 <%String headid = (String)session.getAttribute("id"); %> <%=headid+"님"%> 
+								<span class=" fa fa-angle-down"></span>
+							</a>
+								<ul class="dropdown-menu dropdown-usermenu pull-right">
+									<li><a href="javascript:;"> Profile</a></li>
+									<li><a href="login.html"><i	class="fa fa-sign-out pull-right"></i> Log Out</a></li>
+								</ul>
+								</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+			<!-- /top navigation -->
 
         <!-- page content -->
         <div class="right_col" role="main">
@@ -303,7 +271,7 @@
                 <div class="form-group">
                   <label class="col-sm-3 control-label">계좌</label>
                   <div class="col-sm-9">
-                  <select name ="account" id="account">
+                  <select name ="account" id="account" class="col-sm-7" >
                   	<option value="" selected="selected">계좌를 선택하세요</option>
                   	<c:forEach var="dto" items="${list}"> 
                   	<option value="${dto.accNo}" class="form-control"> ${dto.accName } - ${dto.accNumber} </option>
@@ -313,20 +281,14 @@
                 </div>
                 
                 <div class="form-group">
-                  <label class="col-sm-3 control-label">입금</label>
-                  <div class="col-sm-9">
-                    <input type="text" class="form-control" id="input-money" name="input">
-                  </div>
-                </div>
-
-                
-                <div class="form-group">
-                  <label class="col-sm-3 control-label">출금</label>
-                  <div class="col-sm-9">
-                    <input type="text" class="form-control" id="output-money" name="output">
-                  </div>
-                </div>
-                
+                  <select name ="selectOption" id="selectOption" class="col-sm-2">
+                  <option value="1"> 입금 </option>
+               	  <option value="2"> 출금 </option>
+                  </select>
+                	<div class="col-sm-9">
+                  		<input type="text" class="form-control" id="getMoney" name="getMoney">
+                	</div>
+                </div>               
               </form>
             </div>
           </div>
@@ -337,6 +299,107 @@
         </div>
       </div>
     </div>
+    <!-- calendar modal end-->
+    
+    <!-- detail modal-->
+    <div id="detailModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+    		
+    		<div class="modal-header">
+            	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            	<h4 class="modal-title" id="myModalLabel">내역</h4>
+           
+            <div class="modal-body">
+            <div id="testmodal" style="padding: 5px 20px;">
+            	<form id="antoform" class="form-horizontal calender" role="form" action="">
+           
+            <div>
+            <table>
+            <tr>
+            <td>
+            <img id="salary" src="https://image.flaticon.com/icons/svg/410/410886.svg" width="50" height="50" hspace=30 style="display:block" onclick="detailCategory('salary');"> 월급
+            </td> &nbsp;&nbsp;&nbsp; 
+            <td>
+            <img id="allowance" src="https://image.flaticon.com/icons/svg/489/489097.svg" width="50" height="50" hspace=30 style="display:block" onclick="detailCategory('allowance');"> 용돈
+            </td>&nbsp;&nbsp;&nbsp;
+            <td>
+            <img id="etc" src="https://image.flaticon.com/icons/svg/148/148781.svg" width="50" height="50" hspace=30 style="display:block" onclick="detailCategory('etc');"> 기타
+            </td>
+            </table>
+            </div>             
+            </div>
+          </div>
+            
+          </div>    
+     	 </div>
+      </div>
+    </div>
+     <!-- detail modal end-->
+     
+     
+     <!-- detail2 modal-->
+    <div id="detailModal2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+    		
+    		<div class="modal-header">
+            	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            	<h4 class="modal-title" id="myModalLabel">내역</h4>
+           
+            <div class="modal-body">
+            <div id="testmodal" style="padding: 5px 20px;">
+            	<form id="antoform" class="form-horizontal calender" role="form" action="">
+           
+            <div>
+            <table>
+            <tr>
+            <td>
+            <img id="food" src="https://image.flaticon.com/icons/svg/431/431467.svg" width="50" height="50" hspace=30 style="display:block" onclick="detailCategory('food');"> 식비
+            </td>
+            <td>
+            <img id="transport" src="https://image.flaticon.com/icons/svg/234/234705.svg" width="50" height="50" hspace=30 style="display:block" onclick="detailCategory('transport');"> 교통비
+            </td>
+            <td>
+            <img id="phone" src="https://image.flaticon.com/icons/svg/254/254080.svg" width="50" height="50" hspace=30 style="display:block" onclick="detailCategory('phone');"> 통신비
+            </td>
+            <td>
+            <img id="music" src="https://image.flaticon.com/icons/svg/148/148728.svg" width="50" height="50" hspace=30 style="display:block" onclick="detailCategory('music');"> 문화생활
+            </td>
+            <td>
+            <img id="electronic" src="https://image.flaticon.com/icons/svg/45/45928.svg" width="50" height="50" hspace=30 style="display:block" onclick="detailCategory('electronic');"> 공과금
+            </td>
+            </tr>
+            <tr>
+            <td>
+            <img id="clothes" src="https://image.flaticon.com/icons/svg/502/502138.svg" width="50" height="50" hspace=30 style="display:block" onclick="detailCategory('clothes');"> 의류
+            </td>
+            <td>
+             <img id="save" src="http://www.flaticon.com/premium-icon/icons/svg/297/297487.svg" width="50" height="50" hspace=30 style="display:block" onclick="detailCategory('save');">저축
+            </td>
+            <td>
+             <img id="credit" src="http://www.flaticon.com/premium-icon/icons/svg/125/125288.svg" width="50" height="50" hspace=30 style="display:block" onclick="detailCategory('credit');">카드대금
+            </td>
+            <td>
+             <img id="date" src="https://image.flaticon.com/icons/svg/189/189671.svg" width="50" height="50" hspace=30 style="display:block" onclick="detailCategory('date');"> 데이트
+            </td>
+            <td>
+            <img id="etc" src="https://image.flaticon.com/icons/svg/148/148781.svg" width="50" height="50" hspace=30 style="display:block" onclick="detailCategory('etc');"> 기타
+            </td>
+            </tr>
+            </table>
+            </div>             
+            </div>
+          </div>
+            
+          </div>    
+     	 </div>
+      </div>
+    </div>
+     <!-- detail2 modal end-->
+     
+     
+     
     
     
     <div id="CalenderModalEdit" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -354,7 +417,7 @@
                 <div class="form-group">
                   <label class="col-sm-3 control-label">계좌2</label>
                   <div class="col-sm-9">
-                    <select name ="account" id="account">
+                    <select name ="account2" id="account2">
                   	<option value="" selected="selected">계좌2를 선택하세요</option>
                   	<c:forEach var="dto" items="${list}"> 
                   	<option value="${dto.accNo}" class="form-control"> ${dto.accName } - ${dto.accNumber} </option>
@@ -391,20 +454,5 @@
     <div id="fc_create" data-toggle="modal" data-target="#CalenderModalNew"></div>
     <div id="fc_edit" data-toggle="modal" data-target="#CalenderModalEdit"></div>
     <!-- /calendar modal -->
-        
-    <!-- Bootstrap -->
-    <script src="${pageContext.request.contextPath}/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
-    <!-- FastClick -->
-    <script src="${pageContext.request.contextPath}/vendors/fastclick/lib/fastclick.js"></script>
-    <!-- NProgress -->
-    <script src="${pageContext.request.contextPath}/vendors/nprogress/nprogress.js"></script>
-    <!-- FullCalendar -->
-    <script src="${pageContext.request.contextPath}/vendors/moment/min/moment.min.js"></script>
-    
-    <script src="${pageContext.request.contextPath}/vendors/fullcalendar/dist/fullcalendar.js"></script>
-
-    <!-- Custom Theme Scripts -->
-    <script src="${pageContext.request.contextPath}/build/js/custom.min.js"></script>
-
   </body>
 </html>

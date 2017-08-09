@@ -63,16 +63,17 @@ public class memberController {
 			System.out.println("아이디마즘");
 			HttpSession session = request.getSession();
 			session.setAttribute("id", mId);
-			return "/home";
+			return "redirect:/home.do";
 		}
 		else if(mId.equals("noId"))
 		{
 			System.out.println("아이디 아님");
+			request.setAttribute("loginFail", "아이디나 비밀번호가 맞지 않습니다.");
 			return "/join";
 		}
 		System.out.println("리턴ㄴ바로전");
 		
-		return "redirect:/home";
+		return "redirect:/home.do";
 	}
 	
 	@RequestMapping("/member/join.do")
@@ -122,13 +123,15 @@ public class memberController {
 	}
 	
 	@RequestMapping(value ={"/home.do"})
-	public ModelAndView main(Model model)
+	public ModelAndView main(Model model, HttpServletRequest request)
 	{
+		HttpSession session = request.getSession();
+		String sessionID = (String) session.getAttribute("id");
 		System.out.println("메인------------------");
 		ModelAndView mav = new ModelAndView();
 		mav.setViewName("home");
 		
-		ArrayList<accountDto> list = accService.account_list();
+		ArrayList<accountDto> list = accService.account_list(sessionID);
 		System.out.println("어카운트리스트로 받아온 계좌목록" + list.toString());
 		model.addAttribute("list",list);
 		return mav;

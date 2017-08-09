@@ -18,10 +18,12 @@
 	$(document).on('click','#create-btn',function() {
 		var accName = $('#bankName').val();
 		var accNumber = $('#bankNumber').val();
+		var sessionId = $('#sessionId').val();
+		alert(sessionId);
 		$.ajax({
 			url : "./account_Add.do",
 			type : 'post',
-			data : {"accName" : accName , "accNumber" : accNumber},
+			data : {"accName" : accName , "accNumber" : accNumber, "sessionID": sessionId},
 			dataType : 'json',
 			success : function(data) {
 				alert("계좌등록에 성공하셨습니다.");
@@ -88,6 +90,8 @@
 							<input type="button" id="create-btn" class="btn btn-default" value='등록'>
 							<input type='button' class="btn btn-default" value='취소' onclick="window.close();">
 						</div>
+						<%String headid = (String)session.getAttribute("id"); %>
+						<input type="hidden" value=<%=headid%> id="sessionId">
 					<!-- </form> -->
 					</div>
 					</div>
