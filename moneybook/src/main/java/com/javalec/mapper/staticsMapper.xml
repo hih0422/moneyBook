@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+  <mapper namespace="com.javalec.moneybook.statics.IstaticsDao">
+  
+  <select id="sum_input" resultType="Integer">
+  	select NVL(SUM(money),0)
+  	from inoutput
+  	where account=#{give_account} and type='input'	        						
+  </select>
+  
+   <select id="sum_output" resultType="Integer">
+  	select NVL(SUM(money),0) 
+  	from inoutput
+  	where account=#{give_account} and type='output'        						
+  </select>
+  
+   <select id="this_input" resultType="Integer">
+  	select NVL(SUM(money),0) 
+  	from inoutput
+  	where account=#{give_account} and type='input' and to_char(startN,'yy/mm') = to_char(sysdate,'yy/mm')       						
+  </select>
+  
+   <select id="this_output" resultType="Integer">
+  	select NVL(SUM(money),0) 
+  	from inoutput
+  	where account=#{give_account} and type='output' and to_char(startN,'yy/mm') = to_char(sysdate,'yy/mm')       						
+  </select>
+  
+  <select id="av_input" resultType="Double">
+  	select NVL(AVG(money),0)
+  	from inoutput
+  	where account=#{give_account} and type='input' and to_char(startN,'yy/mm') = to_char(sysdate,'yy/mm')
+  </select>
+  
+   <select id="av_output" resultType="Double">
+  	select NVL(AVG(money),0)
+  	from inoutput
+  	where account=#{give_account} and type='output' and to_char(startN,'yy/mm') = to_char(sysdate,'yy/mm')
+  </select>
+  
+  <select id="before_input" resultType="Integer">
+  	select NVL(SUM(money),0) 
+  	from inoutput
+  	where account=#{give_account} and type='input' and to_char(startN,'yy/mm') = to_char(sysdate-31,'yy/mm')       						
+  </select>
+  
+    <select id="before_output" resultType="Integer">
+  	select NVL(SUM(money),0) 
+  	from inoutput
+  	where account=#{give_account} and type='output' and to_char(startN,'yy/mm') = to_char(sysdate-31,'yy/mm')       						
+  </select>
+  
+  <select id="before_av_input" resultType="Double">
+  	select NVL(AVG(money),0)
+  	from inoutput
+  	where account=#{give_account} and type='input' and to_char(startN,'yy/mm') = to_char(sysdate-31,'yy/mm')
+  </select>
+  
+  <select id="before_av_output" resultType="Double">
+  	select NVL(AVG(money),0)
+  	from inoutput
+  	where account=#{give_account} and type='output' and to_char(startN,'yy/mm') = to_char(sysdate-31,'yy/mm')
+  </select>
+  
+  <select id="maxDeposit" resultType="java.util.Map">
+  	select to_char(startN,'yyyy-mm-dd') as month, category, money 
+  		from (select ROW_NUMBER() OVER (ORDER BY money desc) as rank, startN, category, money 
+  			from inoutput where type ='input' and account=#{give_account}) 
+  	where rank=1
+  </select>
+  
+  <select id="secDeposit" resultType="java.util.Map">
+  	select to_char(startN,'yyyy-mm-dd') as month, category, money 
+  		from (select ROW_NUMBER() OVER (ORDER BY money desc) as rank, startN, category, money 
+  			from inoutput where type ='input' and account=#{give_account}) 
+  	where rank=2
+  </select>
+  
+  <select id="thrDeposit" resultType="java.util.Map">
+  	select to_char(startN,'yyyy-mm-dd') as month, category, money 
+  		from (select ROW_NUMBER() OVER (ORDER BY money desc) as rank, startN, category, money 
+  			from inoutput where type ='input' and account=#{give_account}) 
+  	where rank=3
+  </select>
+  
+  <select id="maxWithdraw" resultType="java.util.Map">
+  	select to_char(startN,'yyyy-mm-dd') as month, category, money 
+  		from (select ROW_NUMBER() OVER (ORDER BY money desc) as rank, startN, category, money 
+  			from inoutput where type ='output' and account=#{give_account}) 
+  	where rank=1
+  </select>
+  
+  <select id="secWithdraw" resultType="java.util.Map">
+  	select to_char(startN,'yyyy-mm-dd') as month, category, money 
+  		from (select ROW_NUMBER() OVER (ORDER BY money desc) as rank, startN, category, money 
+  			from inoutput where type ='output' and account=#{give_account}) 
+  	where rank=2
+  </select>
+  
+  <select id="thrWithdraw" resultType="java.util.Map">
+  	select to_char(startN,'yyyy-mm-dd') as month, category, money 
+  		from (select ROW_NUMBER() OVER (ORDER BY money desc) as rank, startN, category, money 
+  			from inoutput where type ='output' and account=#{give_account}) 
+  	where rank=3
+  </select>
+  
+  
+  </mapper>

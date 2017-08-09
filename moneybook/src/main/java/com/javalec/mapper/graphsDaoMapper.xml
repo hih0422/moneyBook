@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.javalec.moneybook.graphs.IgraphsDao">
+
+<select id="barChartData" resultType="java.util.Map">
+	select a.bankDate,
+    	   a.input,
+       	   b.output
+	from
+		(select TO_CHAR(STARTN,'YYYY-MM') as bankDate,
+		NVL(sum(money),0) as input
+		from inoutput
+		where type = 'input' and account=#{get_account}
+		GROUP BY TO_CHAR(startN,'YYYY-MM'))  a       
+full outer join
+		(select TO_CHAR(STARTN,'YYYY-MM') as bankDate,
+		NVL(sum(money),0) as output
+		from inoutput
+		where type = 'output' and account=#{get_account}
+		GROUP BY TO_CHAR(startN,'YYYY-MM'))  b       
+		on a.bankDate = b.bankDate
+		group by a.bankDate , a.input , b.output
+</select>
+
+<select id="getOutputGraphsData" resultType="java.util.Map">
+select TO_CHAR(startN, 'YYYY-MM') as "start", SUM(outputN) as "output_sum" from output group by TO_CHAR(startN, 'YYYY-MM')
+</select>
+
+</mapper>
